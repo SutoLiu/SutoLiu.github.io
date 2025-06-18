@@ -348,13 +348,17 @@
     <h2 id="wildcard">四、通配符高级用法</h2>
     <div class="example">
         <div class="code">com.tencent.tmgp.sgame{Unity*}=6-7</div>
-        <p>匹配所有Unity开头的线程（如UnityMain、UnityGfxDeviceW）</p>
+        <p>用 <span class="warning">*</span> 号匹配所有<span class="warning">Unity</span>开头的线程（如<span class="warning">Unity</span>Main、<span class="warning">Unity</span>GfxDeviceW）</p>
         <div class="code">com.example.app{*Main}=4-6</div>
-        <p>匹配所有以Main结尾的线程</p>
-        <div class="code">com.tencent.tmgp.sgame{Job.worker [1-2]}=4-6</div>
-        <p>匹配名为Job.worker 1与Job.worker 2的线程</p>
-        <div class="code">com.tencent.tmgp.sgame{Thread-[0-9]*}=4-6</div>
-        <p>匹配Thread-开头且后一位为数字的线程，例如Thread-123、Thread-0abc</p>
+        <p>或者匹配所有以<span class="warning">Main</span>结尾的线程（Unity<span class="warning">Main</span>）</p>
+        <div class="code">com.example.app{Job.worker [1-2]}=4-6</div>
+        <p>用 <span class="warning">[1-2]</span> 来匹配名为Job.worker <span class="warning">1</span>与Job.worker <span class="warning">2</span>的线程</p>
+        <div class="code">com.example.app{Thread-[0-9]*}=4-6</div>
+        <p>结合 <span class="warning">[0-9]</span> 与 <span class="warning">*</span> 来匹配Thread-开头，且后一位为数字的线程，例如Thread-<span class="warning">123</span>、Thread-<span class="warning">0abc</span></p>
+        <div class="code">com.example.app{Thread-?}=0-3</div>
+        <p>用一个英文问号 <span class="warning">?</span> 来匹配Thread-开头后面为一个字符的线程，例如Thread-<span class="warning">1</span>、Thread-<span class="warning">a</span></p>
+        <div class="code">com.example.app{Thread-??}=0-3</div>
+        <p>也可以用两个 <span class="warning">??</span> 则可以匹配两个字符，例如Thread-<span class="warning">12</span>、Thread-<span class="warning">ab</span>、Thread-<span class="warning">1a</span>以此类推</p>
     </div>
 
     <h2 id="guide">五、规则编写指南</h2>
