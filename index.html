@@ -78,7 +78,6 @@ ol.text{padding-left:18px;display:grid;gap:4px}
 <a href="#basic">写规则</a>
 <a href="#cores">核心写法</a>
 <a href="#wild">通配符</a>
-<a href="#logic">生效逻辑</a>
 <a href="#cases">实战示例</a>
 <a href="#check">验证效果</a>
 <a href="#dl">资源下载</a>
@@ -90,23 +89,24 @@ ol.text{padding-left:18px;display:grid;gap:4px}
 <div class="row"><span class="label">规则文件</span><span class="value mono">/data/adb/modules/AppOpt/applist.conf</span></div>
 <div class="row"><span class="label">管理页</span><a class="value mono" href="http://127.0.0.1:8889">http://127.0.0.1:8889</a></div>
 <div class="hint">手机浏览器打开管理页，可视化添加规则，输入包名、线程名时自动联想；也可直接编辑规则文件。</div>
-<div class="hint">保存后立即生效，应用无需重启，重启后自动重新绑定。</div>
+<div class="hint">保存后立即生效，应用无需重启。</div>
 </div>
 
 <div class="card" id="basic">
 <h2 class="card-title">二、写规则</h2>
 <div class="row"><span class="label">应用全部线程</span><span class="value mono">包名=核心</span></div>
-<div class="row"><span class="label">指定某个线程</span><span class="value mono">包名{线程名}=核心</span></div>
+<div class="row"><span class="label">指定单个线程</span><span class="value mono">包名{线程名}=核心</span></div>
+<div class="row"><span class="label">指定多个线程</span><span class="value mono">包名=核心 { 线程名1=核心 线程名2=核心 }</span></div>
 <div class="divider"></div>
-<p class="text"><strong>整个应用用哪些核心</strong></p>
+<p class="text"><strong>整个应用指定核心</strong></p>
 <div class="code">com.tencent.tmgp.sgame=4-7</div>
 <p class="text">王者荣耀的全部线程安排到核心 4-7。</p>
 <div class="divider"></div>
-<p class="text"><strong>只安排某一个线程</strong></p>
+<p class="text"><strong>只安排应用的某一个线程</strong></p>
 <div class="code">com.tencent.tmgp.sgame{UnityMain}=7</div>
 <p class="text">把最吃性能的 UnityMain 安排到大核 7。</p>
 <div class="divider"></div>
-<p class="text"><strong>一次写多条（块写法）</strong></p>
+<p class="text"><strong>一次写多条规则（块写法）</strong></p>
 <div class="code">com.tencent.tmgp.sgame=0-5 {
     UnityMain=6-7
     UnityGfxDeviceW=6-7
@@ -116,14 +116,19 @@ ol.text{padding-left:18px;display:grid;gap:4px}
 
 <div class="card" id="cores">
 <h2 class="card-title">三、核心怎么写</h2>
-<p class="text">手机 CPU 的核心分档设计，以骁龙 888&nbsp;<span class="note">（4+3+1 核心）</span>为例：4 颗小核<span class="note">（0-3）</span>负责省电、3 颗中核<span class="note">（4-6）</span>负责均衡、1 颗大核<span class="note">（7）</span>负责爆发，分工各不相同。</p>
-<p class="text"><strong>语义核心写法，换手机不用改规则</strong></p>
+<p class="text">手机 CPU 的核心分档设计，以骁龙 888&nbsp;<span class="note">（4+3+1 核心）</span>为例：4 颗小核<span class="note">（0-3）</span>负责省电、3 颗中核<span class="note">（4-6）</span>负责均衡、1 颗大核<span class="note">（7）</span>负责高性能爆发，分工各不相同。</p>
+<p class="text"><strong>语义核心写法，换设备不用改规则</strong></p>
 <div class="row"><span class="label">e-core 小核 · 省电</span><span class="chip e">0-3</span></div>
 <div class="row"><span class="label">p-core 中核 · 均衡</span><span class="chip p">4-6</span></div>
 <div class="row"><span class="label">hp-core 大核 · 性能</span><span class="chip h">7</span></div>
 <div class="row"><span class="label">all-core 全部核心</span><span class="chip c">0-7</span></div>
 <div class="divider"></div>
-<p class="text"><strong>也可以按编号写</strong></p>
+<p class="text"><strong>语义核心写法示例</strong></p>
+<div class="code">com.tencent.tmgp.sgame=e-core,p-core  {    // 0-6
+    UnityMain=hp-core                      // 0-3
+    UnityGfxDeviceW=p-core                 // 7
+}</div>
+<p class="text"><strong>也可以按核心范围写</strong></p>
 <div class="code">4-7        核心 4、5、6、7
 4,7        核心 4 与 7
 0-3,7      核心 0-3 加 7
@@ -164,20 +169,8 @@ e-core,7   名字与编号可混用</div>
 <p class="text">两条线程规则并作一条：Unity 开头的线程全部安排到 6-7。</p>
 </div>
 
-<div class="card" id="logic">
-<h2 class="card-title">五、生效逻辑</h2>
-<ol class="text">
-<li>线程规则管命中的线程，其余线程归包级默认管</li>
-<li>没写包级默认时，没被点名的线程照常用全部核心</li>
-<li>同一线程写了多条规则，把命中的核心全部加起来</li>
-<li>应用重启、手机重启都会自动重新绑定</li>
-<li>保存立即生效，写错的行自动跳过</li>
-</ol>
-<div class="hint">被跳过的行数可在管理页「状态」中查看。</div>
-</div>
-
 <div class="card" id="cases">
-<h2 class="card-title">六、实战示例</h2>
+<h2 class="card-title">五、实战示例</h2>
 <p class="text"><strong>思路：按占用分核心</strong></p>
 <p class="text">划重点：单个线程在任意时刻只能在一个CPU核心上执行指令，其指令流具有顺序性和依赖性，无法被拆分到多个核心并行处理，所以放对了才快。高占用的线程优先给大核，中低占用给中核或小核，避免线程互相争抢资源。</p>
 <div class="divider"></div>
@@ -202,17 +195,17 @@ e-core,7   名字与编号可混用</div>
 </div>
 
 <div class="card" id="check">
-<h2 class="card-title">七、验证效果</h2>
+<h2 class="card-title">六、验证效果</h2>
 <ol class="text">
 <li>管理页「状态」查看命中应用与绑定线程数</li>
-<li>用 Scene8 等工具观察各线程的 CPU 占用，作为分配依据</li>
-<li>确认线程落在预期核心，对比前后的帧率与发热耗电，不合适就改规则</li>
+<li>用 Scene8 等工具观察各线程的 CPU 占用，为其合理分配核心</li>
+<li>合理的 CPU 亲和性规划可以让游戏帧率更稳定的同时功耗更低</li>
 </ol>
 <div class="hint">💡 聪明的你已经学会了，举一反三去优化你的应用与游戏吧</div>
 </div>
 
 <div class="card" id="dl">
-<h2 class="card-title">八、资源下载</h2>
+<h2 class="card-title">七、资源下载</h2>
 <div class="dl">
 <a class="btn btn-lg" href="https://gitee.com/sutoliu/AppOptR/tree/master/modules_update" target="_blank" rel="noopener">Gitee</a>
 <a class="btn btn-lg" href="https://hito.lanzouo.com/b0cm2g3hi" target="_blank" rel="noopener">蓝奏云（密码：<i>suto</i>）</a>
