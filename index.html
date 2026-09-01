@@ -1,433 +1,232 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppOpt：Android 应用 CPU 亲和程优化模块使用说明与下载-线程优化</title>
-    <style>
-        :root {
-            --primary: #3498db;
-            --secondary: #2c3e50;
-            --accent: #e74c3c;
-            --light-bg: #f8f9fa;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --card-gradient: linear-gradient(145deg, #ffffff, #f5f7fa);
-            --header-gradient: linear-gradient(135deg, #2c3e50, #4a6491);
-            --download-gradient: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-            --example-gradient: linear-gradient(135deg, #f0f8ff, #e1f5fe);
-        }
-        
-        body {
-            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 0 20px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            background-attachment: fixed;
-            color: #333;
-        }
-        
-        h1 {
-            color: white;
-            font-size: 1.8rem;
-            padding: 15px 20px;
-            border-radius: 10px;
-            background: var(--header-gradient);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 25px 0;
-        }
-        
-        h2 {
-            color: var(--secondary);
-            border-bottom: 2px solid var(--primary);
-            font-size: 1.4rem;
-            margin-top: 1.8em;
-            padding-bottom: 8px;
-            scroll-margin-top: 20px;
-        }
-        
-        h3 {
-            color: #5d6d7e;
-            font-size: 1.1rem;
-            margin-top: 1.2em;
-        }
-        
-        .synopsis, .toc, .example, .summary, .download, .code {
-            background: var(--card-gradient);
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            margin: 20px 0;
-        }
-        
-        .synopsis {
-            border-left: 4px solid var(--primary);
-        }
-        
-        .code {
-            font-family: 'Fira Code', Consolas, monospace;
-            overflow-x: auto;
-            border: 1px solid #e0e0e0;
-            background: var(--light-bg);
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-            font-size: 50%;
-        }
-        
-        .example {
-            background: var(--example-gradient);
-            border-left: 4px solid var(--primary);
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .warning {
-            color: var(--accent);
-            font-weight: 600;
-        }
-        
-        .download {
-            background: var(--download-gradient);
-            text-align: center;
-            border: 1px solid #c8e6c9;
-        }
-        
-        .summary {
-            text-align: center;
-            border: 1px dashed var(--primary);
-        }
-        
-        .core-representation {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
-        .core-item {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            flex: 1;
-            min-width: 120px;
-            text-align: center;
-            border-top: 3px solid var(--primary);
-            font-size: 0.9rem;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .core-item strong {
-            font-size: 1.1rem;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            display: block;
-            margin: 15px auto;
-            background: white;
-            padding: 5px;
-        }
-        
-        a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        
-        a:hover {
-            color: var(--accent);
-            text-decoration: underline;
-        }
-        
-        .qr-code {
-            max-width: 200px;
-            margin: 15px auto;
-            display: block;
-        }
-        
-        .btn-download {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary), #2980b9);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-weight: bold;
-            margin: 15px 0;
-            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-            transition: all 0.3s;
-            min-width: 180px;
-            min-height: 44px;
-            box-sizing: border-box;
-            text-align: center;
-        }
-        
-        .btn-download:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
-        }
-        
-        .toc {
-            padding: 12px 15px;
-            margin: 20px auto;
-        }
-        
-        .toc h3 {
-            margin-top: 0;
-            color: var(--secondary);
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            text-align: center;
-            font-size: 1.2rem;
-        }
-        
-        .toc ul {
-            padding-left: 0;
-            list-style-type: none;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 0;
-            justify-content: center;
-        }
-        
-        .toc li {
-            margin: 0;
-            flex: 1;
-            min-width: 120px;
-        }
-        
-        .toc a {
-            display: block;
-            padding: 8px 12px;
-            background: rgba(220, 220, 220, 0.5);
-            border-radius: 6px;
-            transition: all 0.2s;
-            color: #5d6d7e;
-            text-align: center;
-        }
-        
-        .toc a:hover {
-            background: rgba(52, 152, 219, 0.2);
-            color: var(--primary);
-        }
-        
-        .back-to-top {
-            display: block;
-            text-align: right;
-            margin-top: 20px;
-            font-size: 0.9rem;
-        }
-        
-        @media (max-width: 767px) {
-            .toc ul {
-                flex-direction: row;
-                gap: 8px;
-            }
-            
-            .toc li {
-                min-width: calc(50% - 5px);
-                flex: 0 0 calc(50% - 5px);
-            }
-        }
-        
-        @media (max-width: 480px) {
-            body { 
-                margin: 10px auto; 
-                padding: 0 15px; 
-            }
-            h1 { 
-                font-size: 1.5rem; 
-                padding: 12px 15px; 
-                margin: 15px 0; 
-            }
-            .code { 
-                font-size: 0.9rem; 
-                padding: 12px; 
-            }
-            .toc { 
-                padding: 10px 12px; 
-                margin: 15px 0; 
-            }
-            .btn-download { 
-                min-width: 160px; 
-                padding: 10px 20px; 
-                min-height: 42px; 
-                font-size: 0.9rem;
-            }
-            .core-item { 
-                min-width: 100px; 
-                padding: 8px; 
-                font-size: 0.85rem; 
-            }
-            .core-item strong { 
-                font-size: 1rem; 
-            }
-            h2 {
-                font-size: 1.3rem;
-            }
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7">
+<meta name="color-scheme" content="light">
+<title>AppOpt：Android 应用线程 CPU 亲和性优化管理工具 使用说明与下载</title>
+<meta name="description" content="AppOpt 使用说明：用简单规则把应用与游戏的线程安排到合适的 CPU 核心，保存即生效，无需重启应用。">
+<style>
+:root{--bg:#f2f2f7;--card:#fff;--fg:#1c1c1e;--sub:#8e8e93;--blue:#007aff;--blue-dk:#0062cc;--blue-bg:rgba(0,122,255,.13);--green:#248a3d;--green-bg:rgba(52,199,89,.15);--hl:#b25000;--border:rgba(0,0,0,.08);--font:system-ui,-apple-system,"PingFang SC",sans-serif;--mono:'SF Mono',Consolas,monospace;--r-md:16px;--sh:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.05);--max-w:760px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--fg);font-size:14px;-webkit-tap-highlight-color:transparent}
+a{color:var(--blue);text-decoration:none}
+.app{max-width:var(--max-w);margin:0 auto;padding:12px 12px 32px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:var(--r-md);margin-bottom:12px;box-shadow:var(--sh);animation:fadeUp .15s ease both;padding:16px}
+.card-title{font-size:13px;font-weight:400;color:var(--sub);margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0}
+.row+.row{border-top:1px solid var(--border)}
+.row .label{color:var(--sub);flex-shrink:0}
+.row .value{font-weight:600;text-align:right;word-break:break-all}
+.mono{font-family:var(--mono);font-size:13px}
+.chip{display:inline-block;padding:2px 10px;border-radius:6px;font-size:12px;font-weight:600;font-family:var(--mono)}
+.chip.e{background:var(--green-bg);color:var(--green)}
+.chip.p{background:var(--blue-bg);color:var(--blue-dk)}
+.chip.h{background:rgba(175,82,222,.15);color:#8944ab}
+.chip.c{background:rgba(142,142,147,.16);color:#636366}
+.btn{display:inline-block;background:var(--blue);color:#fff;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500;text-align:center;transition:transform .12s,opacity .12s}
+.btn:active{transform:scale(.94);opacity:.8}
+.btn-lg{width:100%;max-width:320px;padding:11px 0;font-size:14px}
+.hero{text-align:center;padding:24px 16px;background:linear-gradient(135deg,#2c3e50,#4a6491)}
+.hero .name{font-size:20px;font-weight:700;color:#fff}
+.hero .ver{font-size:13px;color:rgba(255,255,255,.8);margin-top:4px}
+.text{font-size:13px;line-height:1.8;color:#3a3a3c;word-break:break-all}
+.text+.text{margin-top:2px}
+.text strong{color:var(--fg)}
+ol.text{padding-left:18px;display:grid;gap:4px}
+.hint{font-size:12px;color:var(--sub);margin-top:8px;line-height:1.5;word-break:break-all}
+.note{color:var(--sub);font-size:12px}
+.code{font-family:var(--mono);font-size:13px;background:var(--bg);border-radius:10px;padding:10px 12px;margin:6px 0 10px;line-height:1.7;white-space:pre;overflow-x:auto}
+.img{max-width:100%;height:auto;border-radius:8px;display:block;margin:12px auto 0}
+.toc{display:flex;flex-wrap:wrap;gap:8px}
+.toc a{background:rgba(118,118,128,.12);color:var(--fg);padding:6px 12px;border-radius:999px;font-size:12px}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.matches{background:var(--bg);border-radius:12px;padding:6px 12px;margin:10px 0}
+.match{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0}
+.match+.match{border-top:1px solid var(--border)}
+.match .pat,.match .hit>span{font-family:var(--mono);font-size:13px;font-weight:600;padding:4px 12px;border-radius:8px}
+.match .pat{color:var(--blue-dk);background:var(--blue-bg);flex-shrink:0}
+.match .arr{color:var(--sub);flex-shrink:0}
+.match .hit{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.match .hit>span{color:var(--green);background:var(--green-bg)}
+.match .hit .lit{color:var(--blue-dk)}
+.pat i,.hit i,.hint i,.code i,.btn i{font-style:normal;font-weight:600;color:var(--hl)}
+.dl{display:grid;gap:10px;justify-items:center;padding:4px 0}
+.qrs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qr{display:grid;gap:8px}
+.qr>svg{width:100%;height:auto;display:block;border-radius:8px}
+.qr .btn{width:100%;padding:8px}
+.btn-wx{background:#07c160}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
 </head>
 <body>
-    <h1>线程优化模块使用说明</h1>
+<main class="app">
 
-    <div class="synopsis">
-        <p>一个使用纯C语言编写，支持定义规则的安卓应用与游戏线程优化程序</p>
-    </div>
-    
-    <!-- 目录导航 -->
-    <div class="toc">
-        <h3>📚内容导航</h3>
-        <ul>
-            <li><a href="#concept">核心概念与配置</a></li>
-            <li><a href="#rules">规则解析与示例</a></li>
-            <li><a href="#cpu">CPU范围表示法</a></li>
-            <li><a href="#wildcard">通配符高级用法</a></li>
-            <li><a href="#guide">规则的编写指南</a></li>
-            <li><a href="#verification">优化验证与调试</a></li>
-            <li><a href="#download">⏬资源下载</a></li>
-        </ul>
-    </div>
+<div class="card hero">
+<h1 class="name">AppOpt</h1>
+<div class="ver">Android 应用 CPU 亲和性管理工具</div>
+</div>
 
-    <h2 id="concept">一、核心概念与配置</h2>
+<div class="card">
+<h2 class="card-title">内容导航</h2>
+<nav class="toc">
+<a href="#start">快速上手</a>
+<a href="#basic">写规则</a>
+<a href="#cores">核心写法</a>
+<a href="#wild">通配符</a>
+<a href="#logic">生效逻辑</a>
+<a href="#cases">实战示例</a>
+<a href="#check">验证效果</a>
+<a href="#dl">资源下载</a>
+</nav>
+</div>
 
-    <h3>1. 配置文件路径</h3>
-    <div class="code">/data/adb/modules/AppOpt/applist.conf</div>
-    
-    <h3>2. 处理器架构示例（以高通骁龙888八核处理器为例）</h3>
-    <div class="example">
-        <p>采用了4+3+1核心设计：</p>
-        <div class="core-representation">
-            <div class="core-item">
-                <strong>0-3</strong>
-                <p>四颗A55小核（能效核心）</p>
-            </div>
-            <div class="core-item">
-                <strong>4-6</strong>
-                <p>三颗A78中核（性能核心）</p>
-            </div>
-            <div class="core-item">
-                <strong>7</strong>
-                <p>一颗X1大核（高性能核心）</p>
-            </div>
-            <div class="core-item">
-                <strong>0-7</strong>
-                <p>全部核心</p>
-            </div>
-        </div>
-    </div>
+<div class="card" id="start">
+<h2 class="card-title">一、快速上手</h2>
+<div class="row"><span class="label">规则文件</span><span class="value mono">/data/adb/modules/AppOpt/applist.conf</span></div>
+<div class="row"><span class="label">管理页</span><a class="value mono" href="http://127.0.0.1:8889">http://127.0.0.1:8889</a></div>
+<div class="hint">手机浏览器打开管理页，可视化添加规则，输入包名、线程名时自动联想；也可直接编辑规则文件。</div>
+<div class="hint">保存后立即生效，应用无需重启，重启后自动重新绑定。</div>
+</div>
 
-    <h2 id="rules">二、规则解析与示例</h2>
-    <div class="example">
-        <h3>示例1 进程级规则：应用包名=核心范围</h3>
-        <div class="code">com.tencent.tmgp.sgame=4-7</div>
-        <p>将王者荣耀所有线程绑定到CPU4-7（性能核心）</p>
-    </div>
+<div class="card" id="basic">
+<h2 class="card-title">二、写规则</h2>
+<div class="row"><span class="label">应用全部线程</span><span class="value mono">包名=核心</span></div>
+<div class="row"><span class="label">指定某个线程</span><span class="value mono">包名{线程名}=核心</span></div>
+<div class="divider"></div>
+<p class="text"><strong>整个应用用哪些核心</strong></p>
+<div class="code">com.tencent.tmgp.sgame=4-7</div>
+<p class="text">王者荣耀的全部线程安排到核心 4-7。</p>
+<div class="divider"></div>
+<p class="text"><strong>只安排某一个线程</strong></p>
+<div class="code">com.tencent.tmgp.sgame{UnityMain}=7</div>
+<p class="text">把最吃性能的 UnityMain 安排到大核 7。</p>
+<div class="divider"></div>
+<p class="text"><strong>一次写多条（块写法）</strong></p>
+<div class="code">com.tencent.tmgp.sgame=0-5 {
+    UnityMain=6-7
+    UnityGfxDeviceW=6-7
+}</div>
+<p class="text">应用整体用 0-5，两个线程各自用 6-7；# 或 // 开头的内容是注释。</p>
+</div>
 
-    <div class="example">
-        <h3>示例2 线程级规则：应用包名{线程名}=核心范围</h3>
-        <div class="code">com.tencent.tmgp.sgame{UnityMain}=7</div>
-        <p>精准绑定王者荣耀的UnityMain线程到超大核心7</p>
-    </div>
+<div class="card" id="cores">
+<h2 class="card-title">三、核心怎么写</h2>
+<p class="text">手机 CPU 的核心分档设计，以骁龙 888&nbsp;<span class="note">（4+3+1 核心）</span>为例：4 颗小核<span class="note">（0-3）</span>负责省电、3 颗中核<span class="note">（4-6）</span>负责均衡、1 颗大核<span class="note">（7）</span>负责爆发，分工各不相同。</p>
+<p class="text"><strong>语义核心写法，换手机不用改规则</strong></p>
+<div class="row"><span class="label">e-core 小核 · 省电</span><span class="chip e">0-3</span></div>
+<div class="row"><span class="label">p-core 中核 · 均衡</span><span class="chip p">4-6</span></div>
+<div class="row"><span class="label">hp-core 大核 · 性能</span><span class="chip h">7</span></div>
+<div class="row"><span class="label">all-core 全部核心</span><span class="chip c">0-7</span></div>
+<div class="divider"></div>
+<p class="text"><strong>也可以按编号写</strong></p>
+<div class="code">4-7        核心 4、5、6、7
+4,7        核心 4 与 7
+0-3,7      核心 0-3 加 7
+e-core,7   名字与编号可混用</div>
+</div>
 
-    <h2 id="cpu">三、CPU核心范围表示法</h2>
-    <div class="code">
-        <ul>
-            <li><span class="warning">4-7</span> ➔ 4到7（CPU4,5,6,7）</li>
-            <li><span class="warning">4,7</span> ➔ 4与7（CPU4,7）</li>
-            <li><span class="warning">0-3,7</span> ➔ 0到3与7（CPU0,1,2,3,7）</li>
-        </ul>
-    </div>
+<div class="card" id="wild">
+<h2 class="card-title">四、线程名的通配符</h2>
+<p class="text">一个游戏动辄几十个线程，一个个写太累。通配符就是名字里的「任意字」，一条规则圈住一批线程。</p>
+<div class="matches">
+<div class="match">
+<span class="pat">Unity<i>*</i></span>
+<span class="arr">→</span>
+<span class="hit"><span><span class="lit">Unity</span><i>Main</i></span><span><span class="lit">Unity</span><i>GfxDeviceW</i></span></span>
+</div>
+<div class="match">
+<span class="pat"><i>*</i>Main</span>
+<span class="arr">→</span>
+<span class="hit"><span><i>Unity</i><span class="lit">Main</span></span><span><i>Game</i><span class="lit">Main</span></span></span>
+</div>
+<div class="match">
+<span class="pat">Thread-<i>?</i></span>
+<span class="arr">→</span>
+<span class="hit"><span><span class="lit">Thread-</span><i>1</i></span><span><span class="lit">Thread-</span><i>a</i></span></span>
+</div>
+<div class="match">
+<span class="pat">Thread-<i>[0-9]</i><i>*</i></span>
+<span class="arr">→</span>
+<span class="hit"><span><span class="lit">Thread-</span><i>1</i><i>23</i></span><span><span class="lit">Thread-</span><i>0</i><i>abc</i></span></span>
+</div>
+</div>
+<div class="hint"><i>*</i> 匹配任意长度的任意字符<br><i>?</i> 匹配任意单个字符<br><i>[0-9]</i> 匹配单个数字<br><i>[a-z]</i> / <i>[A-Z]</i> 匹配单个小写 / 大写字母</div>
+<div class="divider"></div>
+<p class="text"><strong>回到第二节的块写法</strong></p>
+<div class="code">com.tencent.tmgp.sgame=0-5 {
+    Unity<i>*</i>=6-7
+}</div>
+<p class="text">两条线程规则并作一条：Unity 开头的线程全部安排到 6-7。</p>
+</div>
 
-    <h2 id="wildcard">四、通配符高级用法</h2>
-    <div class="example">
-        <div class="code">com.tencent.tmgp.sgame{Unity*}=6-7</div>
-        <p>用 <span class="warning">*</span> 号匹配所有<span class="warning">Unity</span>开头的线程（如<span class="warning">Unity</span>Main、<span class="warning">Unity</span>GfxDeviceW）</p>
-        <div class="code">com.example.app{*Main}=4-6</div>
-        <p>或者匹配所有以<span class="warning">Main</span>结尾的线程（Unity<span class="warning">Main</span>）</p>
-        <div class="code">com.example.app{Job.worker [1-2]}=4-6</div>
-        <p>用 <span class="warning">[1-2]</span> 来匹配名为Job.worker <span class="warning">1</span>与Job.worker <span class="warning">2</span>的线程</p>
-        <div class="code">com.example.app{Thread-[0-9]*}=4-6</div>
-        <p>结合 <span class="warning">[0-9]</span> 与 <span class="warning">*</span> 来匹配Thread-开头，且后一位为数字的线程，例如Thread-<span class="warning">123</span>、Thread-<span class="warning">0abc</span></p>
-        <div class="code">com.example.app{Thread-?}=0-3</div>
-        <p>用一个英文问号 <span class="warning">?</span> 来匹配Thread-开头后面为一个字符的线程，例如Thread-<span class="warning">1</span>、Thread-<span class="warning">a</span></p>
-        <div class="code">com.example.app{Thread-??}=0-3</div>
-        <p>也可以用两个 <span class="warning">??</span> 则可以匹配两个字符，例如Thread-<span class="warning">12</span>、Thread-<span class="warning">ab</span>、Thread-<span class="warning">1a</span>以此类推</p>
-    </div>
+<div class="card" id="logic">
+<h2 class="card-title">五、生效逻辑</h2>
+<ol class="text">
+<li>线程规则管命中的线程，其余线程归包级默认管</li>
+<li>没写包级默认时，没被点名的线程照常用全部核心</li>
+<li>同一线程写了多条规则，把命中的核心全部加起来</li>
+<li>应用重启、手机重启都会自动重新绑定</li>
+<li>保存立即生效，写错的行自动跳过</li>
+</ol>
+<div class="hint">被跳过的行数可在管理页「状态」中查看。</div>
+</div>
 
-    <h2 id="guide">五、规则编写指南</h2>
-    <ol>
-        <li>线程分配应该遵循高占用线程优先分配性能核心，中/低占用分配到中/小核心簇，避免线程间争抢资源。</li>
-        <li>单个线程在任意时刻只能在一个CPU核心上执行指令，其指令流具有顺序性和依赖性，无法被拆分到多个核心并行处理。</li>
-        <li>线程级规则优先级高于进程级。</li>
-    </ol>
+<div class="card" id="cases">
+<h2 class="card-title">六、实战示例</h2>
+<p class="text"><strong>思路：按占用分核心</strong></p>
+<p class="text">划重点：单个线程在任意时刻只能在一个CPU核心上执行指令，其指令流具有顺序性和依赖性，无法被拆分到多个核心并行处理，所以放对了才快。高占用的线程优先给大核，中低占用给中核或小核，避免线程互相争抢资源。</p>
+<div class="divider"></div>
+<p class="text"><strong>游戏：重负载上大核，其余上中核</strong></p>
+<div class="code">com.tencent.tmgp.sgame=0-5 {
+    Unity*=6-7
+}</div>
+<p class="text">骁龙 8 Elite<span class="note">（中核0-5，大核6-7）</span>：Unity 系线程占用最高，绑大核；其余线程绑中核。</p>
+<img class="img" src="http://appopt.suto.top/GameExample.jpg" alt="性能监测示例" width="1234" height="821" loading="lazy" decoding="async">
+<div class="divider"></div>
+<p class="text"><strong>给每个线程各找各的位置</strong></p>
+<div class="code">com.tencent.tmgp.sgame=0-6 {
+    UnityMain=7
+    UnityGfxDeviceW=4-6
+    Job.worker*=4-6
+}</div>
+<p class="text">还是王者荣耀，这次换成 4+3+1 的老旗舰 骁龙 888<span class="note">（小核 0-3，中核 4-6，大核 7）</span>，像安排座位一样：最累的 UnityMain 坐唯一的大核 7，画面的和干杂活的坐中核 4-6，剩下的随便坐 0-6。</p>
+<div class="divider"></div>
+<p class="text"><strong>后台传输慢的应用</strong></p>
+<div class="code">com.ftpshare=4-7</div>
+<p class="text">FTP 共享类应用常跑在小核上导致传文件慢，整体绑到性能核心即可提速。</p>
+</div>
 
-    <div class="example">
-        <h3>王者荣耀优化示例</h3>
-        <p>例如我手机CPU为高通骁龙8 Elite，采用了6+2核心设计，有六颗中核（0-5）与两颗高性能大核（6-7），而王者荣耀UnityMain与UnityGfxDeviceW两个线程CPU占用是最大的，那么我可以将优化规则写为</p>
-        <div class="code">com.tencent.tmgp.sgame{Unity*}=6-7</div>
-        <div class="code">com.tencent.tmgp.sgame=0-5</div>
-        <p>它表示将Unity开头的两个高占用线程绑定到高性能大核，其它线程绑定到0-5。</p>
-        <div style="text-align: center; margin: 20px 0;">
-            <img src="http://appopt.suto.top/GameExample.jpg" alt="性能监测示意图" style="max-width: 90%;">
-        </div>
-    </div>
-    
-    <div class="example">
-        <h3>FTP应用优化示例</h3>
-        <div class="code">com.ftpshare=4-7</div>
-        <p>例如我手机上有一个FTP共享文件的应用，它的优化不太好，老是跑在小核心上，导致文件共享的速度不够快，那么我为它添加上述规则，就可以提升文件共享速度了。</p>
-    </div>
-    
-    <div class="example">
-        <h3>游戏应用优化逻辑</h3>
-        <p>依旧用王者荣耀举例。假设当前设备是4+3+1核心设计的CPU，我们可以将最高负载的一个线程放超大核7，中等负载放中核4-6，低负载0-6。</p>
-        <p>可以得出以下4条规则：</p>
-        <div class="code">com.tencent.tmgp.sgame{UnityMain}=7</div>
-        <div class="code">com.tencent.tmgp.sgame{UnityGfxDeviceW}=4-6</div>
-        <div class="code">com.tencent.tmgp.sgame{Job.worker*}=4-6</div>
-        <div class="code">com.tencent.tmgp.sgame=0-6</div>
-        <p>将这4条规则保存到applist.conf中即可</p>
-    </div>
+<div class="card" id="check">
+<h2 class="card-title">七、验证效果</h2>
+<ol class="text">
+<li>管理页「状态」查看命中应用与绑定线程数</li>
+<li>用 Scene8 等工具观察各线程的 CPU 占用，作为分配依据</li>
+<li>确认线程落在预期核心，对比前后的帧率与发热耗电，不合适就改规则</li>
+</ol>
+<div class="hint">💡 聪明的你已经学会了，举一反三去优化你的应用与游戏吧</div>
+</div>
 
-    <h2 id="verification">六、优化验证与调试</h2>
-    <div class="example">
-        <p>推荐工具：</p>
-        <ul>
-            <li><code>Scene8</code> 中的线程监视器</li>
-            <li>其它类似的性能分析工具</li>
-        </ul>
-        <p>验证步骤：</p>
-        <ol>
-            <li>观察每个线程CPU核心占用后为其合理分配核心</li>
-            <li>这条规则实际性能优化表现（帧率/延迟）</li>
-            <li>合理的线程规划可以让游戏帧率更稳定的同时功耗更低</li>
-        </ol>
-    </div>
+<div class="card" id="dl">
+<h2 class="card-title">八、资源下载</h2>
+<div class="dl">
+<a class="btn btn-lg" href="https://gitee.com/sutoliu/AppOptR/tree/master/modules_update" target="_blank" rel="noopener">Gitee</a>
+<a class="btn btn-lg" href="https://hito.lanzouo.com/b0cm2g3hi" target="_blank" rel="noopener">蓝奏云（密码：<i>suto</i>）</a>
+</div>
+</div>
 
+<div class="card">
+<h2 class="card-title">支持开发</h2>
+<div class="qrs">
+<div class="qr"><svg viewBox="0 0 41 41" shape-rendering="crispEdges" role="img" aria-label="支付宝收款二维码"><path fill="#fff" d="M0 0h41v41H0z"></path><path stroke="#000" d="M4 4.5h7m2 0h2m1 0h1m1 0h1m3 0h2m3 0h1m2 0h7M4 5.5h1m5 0h1m2 0h3m3 0h1m2 0h1m1 0h2m2 0h1m1 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m1 0h1m2 0h1m2 0h2m4 0h3m3 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m1 0h4m6 0h2m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h4m2 0h1m2 0h2m1 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h4m1 0h2m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M12 11.5h1m7 0h1m2 0h4m1 0h1M4 12.5h1m1 0h5m6 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h5M4 13.5h1m1 0h1m1 0h2m6 0h2m3 0h1m1 0h2m1 0h2m2 0h2m1 0h2m1 0h1M4 14.5h5m1 0h3m1 0h1m1 0h4m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h2M7 15.5h2m3 0h2m1 0h1m1 0h1m2 0h5m3 0h2m2 0h4M4 16.5h1m1 0h7m1 0h1m3 0h3m2 0h4m2 0h1m2 0h2m1 0h1M6 17.5h1m1 0h2m1 0h1m2 0h2m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m1 0h1m2 0h1m1 0h2M4 18.5h1m1 0h2m1 0h3m3 0h1m3 0h2m3 0h2m2 0h3m3 0h2M4 19.5h2m2 0h1m2 0h1m4 0h4m2 0h1m2 0h1m1 0h5m1 0h2M7 20.5h2m1 0h1m1 0h1m6 0h3m4 0h4m1 0h2m3 0h1M8 21.5h2m2 0h4m1 0h1m5 0h3m1 0h1m1 0h3m1 0h4M5 22.5h2m3 0h2m6 0h3m1 0h1m1 0h2m2 0h2m1 0h2m1 0h2M4 23.5h2m1 0h2m3 0h1m2 0h2m1 0h2m3 0h1m1 0h3m1 0h6m1 0h1M5 24.5h1m2 0h1m1 0h2m1 0h2m1 0h3m3 0h1m2 0h1m1 0h3m2 0h2m2 0h1M4 25.5h2m5 0h1m3 0h1m3 0h2m3 0h4m1 0h3m1 0h2m1 0h1M4 26.5h1m5 0h1m3 0h1m1 0h1m1 0h1m2 0h3m1 0h1m2 0h1m2 0h5M4 27.5h1m1 0h2m1 0h1m4 0h1m2 0h1m2 0h1m2 0h4m1 0h2m1 0h5M4 28.5h1m1 0h2m2 0h5m3 0h1m1 0h2m1 0h1m2 0h7m2 0h2M12 29.5h1m1 0h4m3 0h1m1 0h2m1 0h1m1 0h1m3 0h1m1 0h3M4 30.5h7m4 0h1m1 0h5m4 0h3m1 0h1m1 0h1m1 0h2M4 31.5h1m5 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h4m3 0h1m3 0h3m1 0h1M4 32.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h3m2 0h4m1 0h6m1 0h2M4 33.5h1m1 0h3m1 0h1m1 0h4m2 0h2m1 0h2m6 0h1m2 0h2m2 0h1M4 34.5h1m1 0h3m1 0h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h2m2 0h4m2 0h1M4 35.5h1m5 0h1m4 0h5m2 0h1m2 0h2m2 0h1m2 0h3M4 36.5h7m1 0h1m1 0h1m3 0h5m4 0h2m1 0h2m3 0h1"></path></svg><a class="btn" href="https://qr.alipay.com/tsx183072iwa3igjxm5fjb6" target="_blank" rel="noopener">打开支付宝</a></div>
+<div class="qr"><svg viewBox="0 0 45 45" shape-rendering="crispEdges" role="img" aria-label="微信收款二维码"><path fill="#fff" d="M0 0h45v45H0z"></path><path stroke="#000" d="M4 4.5h7m1 0h1m1 0h2m1 0h3m1 0h1m1 0h3m2 0h3m3 0h7M4 5.5h1m5 0h1m1 0h2m1 0h1m1 0h2m1 0h4m4 0h3m3 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h2m2 0h2m1 0h1m1 0h1m1 0h3m2 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m2 0h1m1 0h4m1 0h1m7 0h3m1 0h1m1 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h1m1 0h1m2 0h1m1 0h2m2 0h1m1 0h2m1 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m2 0h3m1 0h1m6 0h4m2 0h1m1 0h1m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M13 11.5h1m1 0h2m1 0h5m3 0h1m1 0h4M4 12.5h1m2 0h8m1 0h2m5 0h1m1 0h1m1 0h1m1 0h5m2 0h1m1 0h3M5 13.5h5m1 0h2m2 0h1m4 0h1m1 0h1m7 0h1m2 0h1m1 0h5M10 14.5h2m3 0h1m1 0h5m1 0h2m2 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1M4 15.5h1m2 0h1m1 0h1m4 0h1m1 0h1m1 0h1m1 0h5m2 0h2m3 0h2m2 0h5M6 16.5h3m1 0h2m1 0h5m1 0h2m3 0h2m1 0h1m4 0h4m1 0h3M7 17.5h1m3 0h3m1 0h2m3 0h1m1 0h2m3 0h7m2 0h1m2 0h1M5 18.5h1m2 0h1m1 0h4m3 0h1m1 0h1m2 0h3m1 0h1m1 0h1m1 0h3m1 0h7M4 19.5h1m4 0h1m3 0h3m1 0h3m3 0h1m3 0h2m5 0h1m1 0h1m1 0h1m1 0h1M5 20.5h1m1 0h1m2 0h3m3 0h3m2 0h4m3 0h1m2 0h1m2 0h2m2 0h1m1 0h1M4 21.5h5m2 0h2m1 0h1m1 0h1m4 0h1m7 0h3m1 0h1m1 0h1m1 0h2M6 22.5h2m2 0h2m3 0h4m1 0h1m2 0h1m3 0h2m1 0h2m1 0h2m1 0h1m3 0h1M4 23.5h3m1 0h2m1 0h1m1 0h2m2 0h1m1 0h2m6 0h3m1 0h2m1 0h4m1 0h1M4 24.5h1m2 0h2m1 0h1m3 0h2m1 0h2m1 0h2m1 0h1m1 0h1m7 0h2m1 0h2m1 0h2M6 25.5h3m2 0h1m2 0h4m3 0h3m7 0h1m2 0h1m1 0h1m2 0h1M7 26.5h2m1 0h6m3 0h2m3 0h1m1 0h4m1 0h1m2 0h1m2 0h2m1 0h1M5 27.5h1m1 0h2m2 0h1m1 0h2m1 0h1m3 0h1m1 0h3m3 0h1m2 0h1m2 0h2m2 0h1m1 0h1M5 28.5h1m1 0h1m2 0h1m1 0h1m1 0h6m1 0h1m3 0h1m1 0h1m2 0h3m1 0h2m1 0h1m1 0h1M4 29.5h1m1 0h1m2 0h1m1 0h3m2 0h2m4 0h1m1 0h3m2 0h2m1 0h1m1 0h1m1 0h4M4 30.5h2m1 0h1m1 0h2m1 0h2m1 0h1m2 0h2m1 0h4m3 0h1m2 0h2m1 0h1m1 0h1m2 0h2M4 31.5h1m4 0h1m1 0h5m1 0h1m2 0h1m1 0h1m4 0h2m2 0h1m1 0h1m1 0h1m2 0h1M4 32.5h1m1 0h1m1 0h1m1 0h1m2 0h1m2 0h1m2 0h1m4 0h5m2 0h6m1 0h2M12 33.5h1m1 0h2m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m2 0h4m3 0h2m2 0h1M4 34.5h7m1 0h1m1 0h1m2 0h9m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m3 0h1M4 35.5h1m5 0h1m1 0h4m1 0h1m5 0h1m2 0h1m1 0h2m1 0h2m3 0h1m3 0h1M4 36.5h1m1 0h3m1 0h1m1 0h1m2 0h3m1 0h2m1 0h3m2 0h1m3 0h7m1 0h1M4 37.5h1m1 0h3m1 0h1m1 0h3m10 0h1m5 0h4m3 0h1m1 0h1M4 38.5h1m1 0h3m1 0h1m4 0h1m1 0h1m4 0h1m3 0h2m2 0h4m1 0h4m1 0h1M4 39.5h1m5 0h1m2 0h3m2 0h2m1 0h4m1 0h3m1 0h2m1 0h8M4 40.5h7m1 0h1m1 0h3m1 0h1m3 0h3m2 0h1m2 0h1m1 0h2m3 0h2m1 0h1"></path></svg><span class="btn btn-wx">微信扫一扫</span></div>
+</div>
+</div>
 
-    <div class="summary">
-        <p>💡 聪明的你现在已经学会如何使用线程优化模块，并举一反三优化你的应用与游戏了</p>
-    </div>
-    
-    <h2 id="download">资源下载</h2>
-    <div class="download">
-        <strong>Magisk模块下载：</strong><br>
-        <a href="https://gitee.com/sutoliu/AppOptR/tree/master/modules_update" target="_blank" class="btn-download">Gitee</a><br>
-        <a href="https://hito.lanzouo.com/b0cm2g3hi" target="_blank" class="btn-download">蓝奏云</a><br>
-        密码：<span class="warning">suto</span>
-    </div>
-    
-    <div class="download">
-        <strong>请作者喝杯奶茶</strong><br>
-        <a href="https://qr.alipay.com/tsx183072iwa3igjxm5fjb6" target="_blank" class="btn-download">打开支付宝</a><br>
-        <img src="http://appopt.suto.top/%E8%AF%B7%E4%BD%9C%E8%80%85%E6%9D%AF%E5%A5%B6%E8%8C%B6.png" alt="二维码" class="qr-code">
-    </div>
+</main>
 </body>
 </html>
