@@ -17,7 +17,10 @@ a{color:var(--blue);text-decoration:none}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .card{background:var(--card);border-radius:var(--r-md);margin-bottom:12px;box-shadow:var(--sh);animation:fadeUp .15s ease both;padding:16px}
 .card-title{font-size:13px;font-weight:400;color:var(--sub);margin-bottom:12px}
+.rows{margin:12px 0}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0}
+.rows .row:first-child{padding-top:0}
+.rows .row:last-child{padding-bottom:0}
 .row+.row{border-top:1px solid var(--border)}
 .row .label{color:var(--sub);flex-shrink:0}
 .row .value{font-weight:600;text-align:right;word-break:break-all}
@@ -86,17 +89,21 @@ ol.text{padding-left:18px;display:grid;gap:4px}
 
 <div class="card" id="start">
 <h2 class="card-title">一、快速上手</h2>
+<div class="rows">
 <div class="row"><span class="label">规则文件</span><span class="value mono">/data/adb/modules/AppOpt/applist.conf</span></div>
 <div class="row"><span class="label">管理页</span><a class="value mono" href="http://127.0.0.1:8889">http://127.0.0.1:8889</a></div>
+</div>
 <div class="hint">手机浏览器打开管理页，可视化添加规则，输入包名、线程名时自动联想；也可直接编辑规则文件。</div>
 <div class="hint">保存后立即生效，应用无需重启。</div>
 </div>
 
 <div class="card" id="basic">
 <h2 class="card-title">二、写规则</h2>
+<div class="rows">
 <div class="row"><span class="label">应用全部线程</span><span class="value mono">包名=核心</span></div>
 <div class="row"><span class="label">指定单个线程</span><span class="value mono">包名{线程名}=核心</span></div>
 <div class="row"><span class="label">指定多个线程</span><span class="value mono">包名=核心 { 线程名1=核心 线程名2=核心 }</span></div>
+</div>
 <div class="divider"></div>
 <p class="text"><strong>整个应用指定核心</strong></p>
 <div class="code">com.tencent.tmgp.sgame=4-7</div>
@@ -118,10 +125,12 @@ ol.text{padding-left:18px;display:grid;gap:4px}
 <h2 class="card-title">三、核心怎么写</h2>
 <p class="text">手机 CPU 的核心分档设计，以骁龙 888&nbsp;<span class="note">（4+3+1 核心）</span>为例：4 颗小核<span class="note">（0-3）</span>负责省电、3 颗中核<span class="note">（4-6）</span>负责均衡、1 颗大核<span class="note">（7）</span>负责高性能爆发，分工各不相同。</p>
 <p class="text"><strong>语义核心写法，换设备不用改规则</strong></p>
+<div class="rows">
 <div class="row"><span class="label">e-core 小核 · 省电</span><span class="chip e">0-3</span></div>
 <div class="row"><span class="label">p-core 中核 · 均衡</span><span class="chip p">4-6</span></div>
 <div class="row"><span class="label">hp-core 大核 · 性能</span><span class="chip h">7</span></div>
 <div class="row"><span class="label">all-core 全部核心</span><span class="chip c">0-7</span></div>
+</div>
 <div class="divider"></div>
 <p class="text"><strong>语义核心写法示例</strong></p>
 <div class="code">com.tencent.tmgp.sgame=e-core,p-core  {    // 0-6
